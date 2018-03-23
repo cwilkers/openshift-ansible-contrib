@@ -37,6 +37,10 @@ master_vm:
       storage_domain: "{{ rhv_data_storage }}"
       name: docker_disk
       interface: virtio
+    - size: 50GiB
+      storage_domain: "{{ rhv_data_storage }}"
+      name: localvol_disk
+      interface: virtio
 
 node_vm:
   cluster: "{{ rhv_cluster }}"
@@ -64,7 +68,7 @@ update_guest_agent_script: |
     - sed -i 's@^# device =.*@device = /dev/virtio-ports/ovirt-guest-agent.0@' /etc/ovirt-guest-agent.conf
     - sed -i 's@com.redhat.rhevm.vdsm@ovirt-guest-agent.0@' /etc/udev/rules.d/55-ovirt-guest-agent.rules
     - 'udevadm trigger --subsystem-match="virtio-ports"'
-    - sleep 5
+    - chmod 777 /dev/virtio-ports/ovirt-guest-agent.0
     - systemctl restart ovirt-guest-agent
 
 vms:
@@ -106,6 +110,13 @@ vms:
       host_name: "openshift-infra-1.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
       custom_script: "{{ update_guest_agent_script }}"
+  - name: "openshift-infra-2.{{ public_hosted_zone }}"
+    tag: openshift_infra
+    profile: "{{ node_vm }}"
+    cloud_init:
+      host_name: "openshift-infra-2.{{ public_hosted_zone }}"
+      authorized_ssh_keys: "{{ root_ssh_key }}"
+      custom_script: "{{ update_guest_agent_script }}"
 
   # Node VMs
   - name: "openshift-node-0.{{ public_hosted_zone }}"
@@ -120,6 +131,13 @@ vms:
     profile: "{{ node_vm }}"
     cloud_init:
       host_name: "openshift-node-1.{{ public_hosted_zone }}"
+      authorized_ssh_keys: "{{ root_ssh_key }}"
+      custom_script: "{{ update_guest_agent_script }}"
+  - name: "openshift-node-2.{{ public_hosted_zone }}"
+    tag: openshift_node
+    profile: "{{ node_vm }}"
+    cloud_init:
+      host_name: "openshift-node-2.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
       custom_script: "{{ update_guest_agent_script }}"
 
@@ -149,7 +167,7 @@ affinity_groups:
     vms:
       - "openshift-infra-0.{{ public_hosted_zone }}"
       - "openshift-infra-1.{{ public_hosted_zone }}"
-      - "openshift-lb.{{ public_hosted_zone }}"
+      - "openshift-infra-2.{{ public_hosted_zone }}"
     wait: true
 
   - name: app_ag
@@ -159,4 +177,5 @@ affinity_groups:
     vms:
       - "openshift-node-0.{{ public_hosted_zone }}"
       - "openshift-node-1.{{ public_hosted_zone }}"
+      - "openshift-node-2.{{ public_hosted_zone }}"
 ...
