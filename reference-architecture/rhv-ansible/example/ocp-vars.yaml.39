@@ -26,7 +26,7 @@ engine_cafile: ../ca.pem
 qcow_url: http://satellite.example.com/pub/rhel-server-7.4.x86_64-kvm.qcow2
 
 template_name: rhel741
-image_path: "{{ ansible_env.HOME }}/Downloads/{{ template_name }}.qcow2"
+image_path: "{{ lookup('env', 'HOME') }}/Downloads/{{ template_name }}.qcow2"
 
 
 ## Name of cluster to install on
@@ -47,4 +47,10 @@ root_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 ## This will allow the output_dns.yaml playbook to create an
 ## nsupdate script
 nsupdate_server: localhost
+
+##############################################################################
+# DNS info required for outputting nsupdate/hosts info
+public_hosted_zone: example.com
+app_dns_prefix: apps
+openshift_master_cluster_public_hostname: openshift.{{ public_hosted_zone }}
 

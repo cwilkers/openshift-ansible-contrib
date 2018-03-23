@@ -15,7 +15,7 @@ else
 fi
 
 ansible-playbook $VARS example/uninstall.yaml 
-ansible-playbook -i example/inventory.yaml $VARS $INFRA
+ansible-playbook -i example/inventory.ini $VARS $INFRA
 if [ "$?" != "0" ]; then
   echo "Infrastructure deploy broke"
   exit
@@ -30,15 +30,15 @@ if [ "$?" != "0" ]; then
   echo "DNS update broke"
   exit
 fi
-ansible-playbook -i example/inventory.yaml -e@~/vault.yaml example/node_preparation.yaml
+ansible-playbook -i example/inventory.ini -e@~/vault.yaml example/node_preparation.yaml
 if [ "$?" != "0" ]; then
   echo "Node preparation broke"
   exit
 fi
-ansible-playbook -i example/inventory.yaml -e@~/vault.yaml ../../../openshift-ansible/playbooks/prerequisites.yml
+ansible-playbook -i example/inventory.ini -e@~/vault.yaml ../../../openshift-ansible/playbooks/prerequisites.yml
 if [ "$?" != "0" ]; then
   echo "Prerequisites installation broke"
   exit
 fi
-ansible-playbook -i example/inventory.yaml -e@~/vault.yaml ../../../openshift-ansible/playbooks/deploy_cluster.yml
+ansible-playbook -i example/inventory.ini -e@~/vault.yaml ../../../openshift-ansible/playbooks/deploy_cluster.yml
 

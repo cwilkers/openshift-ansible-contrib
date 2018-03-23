@@ -1,6 +1,6 @@
 ---
 - name: Unregister VMs
-  gather_facts: false
+  gather_facts: true
   hosts:
     - tag_openshift_master
     - tag_openshift_infra
