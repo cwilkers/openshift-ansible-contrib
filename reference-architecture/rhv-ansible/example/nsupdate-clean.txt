@@ -112,8 +112,10 @@ update delete openshift-master-1.example.com A
 update delete openshift-master-2.example.com A
 update delete openshift-infra-0.example.com A
 update delete openshift-infra-1.example.com A
+update delete openshift-infra-2.example.com A
 update delete openshift-node-0.example.com A
 update delete openshift-node-1.example.com A
+update delete openshift-node-2.example.com A
 update delete openshift-lb.example.com A
 show
 send
