@@ -7,7 +7,6 @@ and reflect the development environment used to test at RedHat.
     created by the env, including reverse pointers in the 192.168.155 space
 ## OCP 3.9 on RHV 4.2 Environment
   - inventory.yaml Static inventory for 3.9 on RHV 4.2 beta
-  - inventory.ini INI version of above
   - node_preparation.yaml Playbook to do minimal setup before handing off to OpenShift prerequisites pb
   - ocp-vars.yaml.39 Base set of variables needed to establish VMs and DNS setup
   - ovirt-37-infra.yaml Set up VMs for refarch (39 is a symlink to this one)
