@@ -51,6 +51,6 @@ nsupdate_server: localhost
 ##############################################################################
 # DNS info required for outputting nsupdate/hosts info
 public_hosted_zone: example.com
-app_dns_prefix: apps
 openshift_master_cluster_public_hostname: openshift.{{ public_hosted_zone }}
+openshift_master_default_subdomain: apps.{{ public_hosted_zone }}
 

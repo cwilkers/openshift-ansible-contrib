@@ -7,19 +7,19 @@ all:
           children:
             masters:
               hosts:
-                openshift-master-[0:2].example.com
+                master[0:2].example.com
               vars:
                 openshift_node_labels: "{'region': 'master'}"
                 openshift_schedulable: true
             apps:
               hosts:
-                openshift-node-[0:2].example.com
+                app[0:2].example.com
               vars:
                 openshift_node_labels: "{'region': 'primary'}"
                 openshift_schedulable: true
             infras:
               hosts:
-                openshift-infra-[0:2].example.com
+                infra[0:2].example.com
               vars:
                 openshift_node_labels: "{'region': 'infra'}"
                 openshift_schedulable: true
@@ -28,7 +28,7 @@ all:
                 openshift-lb.example.com
             etcd:
               hosts:
-                openshift-master-[0:2].example.com
+                master[0:2].example.com
       vars:
         # General variables
         ansible_ssh_user: root
@@ -63,6 +63,7 @@ all:
         load_balancer_hostname: openshift-lb.{{public_hosted_zone}}
         openshift_master_cluster_hostname: "{{ load_balancer_hostname }}"
         openshift_master_cluster_public_hostname: openshift.{{ public_hosted_zone }}
+        openshift_master_default_subdomain: "{{app_dns_prefix}}.{{public_hosted_zone}}"
         openshift_public_hostname: "{{openshift_master_cluster_public_hostname}}"
 
         # Registry
