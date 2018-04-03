@@ -25,7 +25,7 @@ all:
                 openshift_schedulable: true
             lb:
               hosts:
-                openshift-lb.example.com
+                lb.example.com
             etcd:
               hosts:
                 master[0:2].example.com
@@ -60,7 +60,7 @@ all:
         # DNS
         app_dns_prefix: apps
         public_hosted_zone: example.com
-        load_balancer_hostname: openshift-lb.{{public_hosted_zone}}
+        load_balancer_hostname: lb.{{public_hosted_zone}}
         openshift_master_cluster_hostname: "{{ load_balancer_hostname }}"
         openshift_master_cluster_public_hostname: openshift.{{ public_hosted_zone }}
         openshift_master_default_subdomain: "{{app_dns_prefix}}.{{public_hosted_zone}}"
