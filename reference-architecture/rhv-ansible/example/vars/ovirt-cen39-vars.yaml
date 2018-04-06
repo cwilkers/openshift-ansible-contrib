@@ -24,10 +24,9 @@ template_nics:
 ##########################
 # Other top scope vars
 ##########################
-# Centos does not have guest agent...
-#wait_for_ip: false
+wait_for_ip: true
 # See if anything goes wrong...
-debug_vm_create: true
+#debug_vm_create: true
 
 master_vm:
   cluster: "{{ rhv_cluster }}"
@@ -40,6 +39,11 @@ master_vm:
       storage_domain: "{{ rhv_data_storage }}"
       name: docker_disk
       interface: virtio
+    - size: 50GiB
+      storage_domain: "{{ rhv_data_storage }}"
+      name: localvol_disk
+      interface: virtio
+  state: running
 
 node_vm:
   cluster: "{{ rhv_cluster }}"
@@ -55,6 +59,7 @@ node_vm:
       storage_domain: "{{ rhv_data_storage }}"
       name: localvol_disk
       interface: virtio
+  state: running
 
 
 install_guest_agent_script: |
@@ -71,66 +76,80 @@ install_guest_agent_script: |
 
 vms:
   # Master VMs
-  - name: "openshift-master-0.{{ public_hosted_zone }}"
+  - name: "master0.{{ public_hosted_zone }}"
     profile: "{{ master_vm }}"
     tag: openshift_master
     cloud_init:
-      host_name: "openshift-master-0.{{ public_hosted_zone }}"
+      host_name: "master0.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
       custom_script: "{{ install_guest_agent_script }}"
-  - name: "openshift-master-1.{{ public_hosted_zone }}"
+  - name: "master1.{{ public_hosted_zone }}"
     tag: openshift_master
     profile: "{{ master_vm }}"
     cloud_init:
-      host_name: "openshift-master-1.{{ public_hosted_zone }}"
+      host_name: "master1.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
       custom_script: "{{ install_guest_agent_script }}"
-  - name: "openshift-master-2.{{ public_hosted_zone }}"
+  - name: "master2.{{ public_hosted_zone }}"
     tag: openshift_master
     profile: "{{ master_vm }}"
     cloud_init:
-      host_name: "openshift-master-2.{{ public_hosted_zone }}"
+      host_name: "master2.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
       custom_script: "{{ install_guest_agent_script }}"
 
   # Infra VMs
-  - name: "openshift-infra-0.{{ public_hosted_zone }}"
+  - name: "infra0.{{ public_hosted_zone }}"
     tag: openshift_infra
     profile: "{{ node_vm }}"
     cloud_init:
-      host_name: "openshift-infra-0.{{ public_hosted_zone }}"
+      host_name: "infra0.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
       custom_script: "{{ install_guest_agent_script }}"
-  - name: "openshift-infra-1.{{ public_hosted_zone }}"
+  - name: "infra1.{{ public_hosted_zone }}"
     tag: openshift_infra
     profile: "{{ node_vm }}"
     cloud_init:
-      host_name: "openshift-infra-1.{{ public_hosted_zone }}"
+      host_name: "infra1.{{ public_hosted_zone }}"
+      authorized_ssh_keys: "{{ root_ssh_key }}"
+      custom_script: "{{ install_guest_agent_script }}"
+  - name: "infra2.{{ public_hosted_zone }}"
+    tag: openshift_infra
+    profile: "{{ node_vm }}"
+    cloud_init:
+      host_name: "infra2.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
       custom_script: "{{ install_guest_agent_script }}"
 
-  # Node VMs
-  - name: "openshift-node-0.{{ public_hosted_zone }}"
+  # Application VMs
+  - name: "app0.{{ public_hosted_zone }}"
     tag: openshift_node
     profile: "{{ node_vm }}"
     cloud_init:
-      host_name: "openshift-node-0.{{ public_hosted_zone }}"
+      host_name: "app0.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
       custom_script: "{{ install_guest_agent_script }}"
-  - name: "openshift-node-1.{{ public_hosted_zone }}"
+  - name: "app1.{{ public_hosted_zone }}"
     tag: openshift_node
     profile: "{{ node_vm }}"
     cloud_init:
-      host_name: "openshift-node-1.{{ public_hosted_zone }}"
+      host_name: "app1.{{ public_hosted_zone }}"
+      authorized_ssh_keys: "{{ root_ssh_key }}"
+      custom_script: "{{ install_guest_agent_script }}"
+  - name: "app2.{{ public_hosted_zone }}"
+    tag: openshift_node
+    profile: "{{ node_vm }}"
+    cloud_init:
+      host_name: "app2.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
       custom_script: "{{ install_guest_agent_script }}"
 
   # Load balancer
-  - name: "openshift-lb.{{ public_hosted_zone }}"
+  - name: "lb.{{ public_hosted_zone }}"
     tag: openshift_lb
     profile: "{{ node_vm }}"
     cloud_init:
-      host_name: "openshift-lb.{{ public_hosted_zone }}"
+      host_name: "lb.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
       custom_script: "{{ install_guest_agent_script }}"
 
@@ -140,18 +159,18 @@ affinity_groups:
     vm_enforcing: false
     vm_rule: negative
     vms:
-      - "openshift-master-0.{{ public_hosted_zone }}"
-      - "openshift-master-1.{{ public_hosted_zone }}"
-      - "openshift-master-2.{{ public_hosted_zone }}"
+      - "master0.{{ public_hosted_zone }}"
+      - "master1.{{ public_hosted_zone }}"
+      - "master2.{{ public_hosted_zone }}"
     wait: true
   - name: infra_ag
     cluster: "{{ rhv_cluster }}"
     vm_enforcing: false
     vm_rule: negative
     vms:
-      - "openshift-infra-0.{{ public_hosted_zone }}"
-      - "openshift-infra-1.{{ public_hosted_zone }}"
-      - "openshift-lb.{{ public_hosted_zone }}"
+      - "infra0.{{ public_hosted_zone }}"
+      - "infra1.{{ public_hosted_zone }}"
+      - "infra2.{{ public_hosted_zone }}"
     wait: true
 
   - name: app_ag
@@ -159,6 +178,7 @@ affinity_groups:
     vm_enforcing: false
     vm_rule: negative
     vms:
-      - "openshift-node-0.{{ public_hosted_zone }}"
-      - "openshift-node-1.{{ public_hosted_zone }}"
+      - "app0.{{ public_hosted_zone }}"
+      - "app1.{{ public_hosted_zone }}"
+      - "app2.{{ public_hosted_zone }}"
 ...
