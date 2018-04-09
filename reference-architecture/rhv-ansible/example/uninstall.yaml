@@ -16,7 +16,7 @@
   gather_facts: false
 
   vars_files:
-    - vars/ovirt-37-vars.yaml
+    - vars/ovirt-39-vars.yaml
 
   pre_tasks:
     - name: Log in to oVirt
