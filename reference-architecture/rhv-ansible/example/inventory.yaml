@@ -35,13 +35,14 @@ all:
         console_port: 8443
         debug_level: 2
         deployment_type: openshift-enterprise
+        openshift_clock_enabled: true
         openshift_debug_level: "{{ debug_level }}"
         openshift_deployment_type: "{{ deployment_type }}"
         openshift_master_cluster_method: native
         openshift_node_debug_level: "{{ node_debug_level | default(debug_level, true) }}"
         openshift_release: 3.9
         openshift_vers: v3_9
-        osm_default_node_selector: region=primary
+        osm_default_node_selector: "region=primary"
 
         # RHV Specific Settings
         openshift_enable_service_catalog: False
@@ -90,3 +91,41 @@ all:
         rhsub_server: "{{ vault_rhsub_server }}"
         rhsub_user: "{{ vault_rhsub_user }}"
         rhsub_password: "{{ vault_rhsub_password }}"
+
+        # Load Balancer Config
+        openshift_loadbalancer_additional_frontends:
+          - name: apps-http
+            option: tcplog
+            binds:
+              - "*:80"
+            default_backend: apps-http
+          - name: apps-https
+            option: tcplog
+            binds:
+              - "*:443"
+            default_backend: apps-http
+        openshift_loadbalancer_additional_backends:
+          - name: apps-http
+            balance: source
+            servers:
+              - name: infra0
+                address: "{{ groups['infras'].0 }}:80"
+                opts: check
+              - name: infra1
+                address: "{{ groups['infras'].1 }}:80"
+                opts: check
+              - name: infra2
+                address: "{{ groups['infras'].2 }}:80"
+                opts: check
+          - name: apps-https
+            balance: source
+            servers:
+              - name: infra0
+                address: "{{ groups['infras'].0 }}:443"
+                opts: check
+              - name: infra1
+                address: "{{ groups['infras'].1 }}:443"
+                opts: check
+              - name: infra2
+                address: "{{ groups['infras'].2 }}:443"
+                opts: check
