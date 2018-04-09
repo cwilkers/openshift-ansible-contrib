@@ -2,7 +2,6 @@
 - hosts: nodes
   gather_facts: yes
   roles:
-    - rhsm-timeout
     - role: rhsm-subscription
       rhsm_user: "{{ rhsub_user }}"
       rhsm_password: "{{ rhsub_password }}"
@@ -12,5 +11,3 @@
       when: ansible_distribution == "RedHat" and rhsub_user is defined
     - role: rhsm-repos
       openshift_required_repos: ['rhel-7-server-rpms', 'rhel-7-server-extras-rpms', 'rhel-7-fast-datapath-rpms', 'rhel-7-server-ose-3.9-rpms']
-    - role: openshift-volume-quota
-      local_volumes_device: '/dev/vdc'

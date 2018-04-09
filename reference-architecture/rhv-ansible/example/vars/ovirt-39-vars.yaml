@@ -25,6 +25,7 @@ template_nics:
 # Other top scope vars
 ##########################
 debug_vm_create: true
+wait_for_ip: true
 
 master_vm:
   cluster: "{{ rhv_cluster }}"
@@ -41,6 +42,7 @@ master_vm:
       storage_domain: "{{ rhv_data_storage }}"
       name: localvol_disk
       interface: virtio
+  state: running
 
 node_vm:
   cluster: "{{ rhv_cluster }}"
@@ -56,6 +58,7 @@ node_vm:
       storage_domain: "{{ rhv_data_storage }}"
       name: localvol_disk
       interface: virtio
+  state: running
 
 
 ##########################
@@ -63,13 +66,17 @@ node_vm:
 ##########################
 # Use the following if RHEL 7.4 or below VMs are being created on a RHV 4.2 or above engine
 
-update_guest_agent_script: |
+cloud_init_script: |
   runcmd:
     - sed -i 's@^# device =.*@device = /dev/virtio-ports/ovirt-guest-agent.0@' /etc/ovirt-guest-agent.conf
     - sed -i 's@com.redhat.rhevm.vdsm@ovirt-guest-agent.0@' /etc/udev/rules.d/55-ovirt-guest-agent.rules
     - 'udevadm trigger --subsystem-match="virtio-ports"'
     - chmod 777 /dev/virtio-ports/ovirt-guest-agent.0
     - systemctl restart ovirt-guest-agent
+    - mkdir -p '/var/lib/origin/openshift.local.volumes'
+    - /usr/sbin/mkfs.xfs -L localvol /dev/vdc
+  mounts:
+    - [ '/dev/vdc', '/var/lib/origin/openshift.local.volumes', 'xfs', 'defaults,gquota' ]
 
 vms:
   # Master VMs
@@ -79,21 +86,21 @@ vms:
     cloud_init:
       host_name: "master0.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ update_guest_agent_script }}"
+      custom_script: "{{ cloud_init_script }}"
   - name: "master1.{{ public_hosted_zone }}"
     tag: openshift_master
     profile: "{{ master_vm }}"
     cloud_init:
       host_name: "master1.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ update_guest_agent_script }}"
+      custom_script: "{{ cloud_init_script }}"
   - name: "master2.{{ public_hosted_zone }}"
     tag: openshift_master
     profile: "{{ master_vm }}"
     cloud_init:
       host_name: "master2.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ update_guest_agent_script }}"
+      custom_script: "{{ cloud_init_script }}"
 
   # Infra VMs
   - name: "infra0.{{ public_hosted_zone }}"
@@ -102,21 +109,21 @@ vms:
     cloud_init:
       host_name: "infra0.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ update_guest_agent_script }}"
+      custom_script: "{{ cloud_init_script }}"
   - name: "infra1.{{ public_hosted_zone }}"
     tag: openshift_infra
     profile: "{{ node_vm }}"
     cloud_init:
       host_name: "infra1.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ update_guest_agent_script }}"
+      custom_script: "{{ cloud_init_script }}"
   - name: "infra2.{{ public_hosted_zone }}"
     tag: openshift_infra
     profile: "{{ node_vm }}"
     cloud_init:
       host_name: "infra2.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ update_guest_agent_script }}"
+      custom_script: "{{ cloud_init_script }}"
 
   # Node VMs
   - name: "app0.{{ public_hosted_zone }}"
@@ -125,21 +132,21 @@ vms:
     cloud_init:
       host_name: "app0.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ update_guest_agent_script }}"
+      custom_script: "{{ cloud_init_script }}"
   - name: "app1.{{ public_hosted_zone }}"
     tag: openshift_node
     profile: "{{ node_vm }}"
     cloud_init:
       host_name: "app1.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ update_guest_agent_script }}"
+      custom_script: "{{ cloud_init_script }}"
   - name: "app2.{{ public_hosted_zone }}"
     tag: openshift_node
     profile: "{{ node_vm }}"
     cloud_init:
       host_name: "app2.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ update_guest_agent_script }}"
+      custom_script: "{{ cloud_init_script }}"
 
   # Load balancer
   - name: "lb.{{ public_hosted_zone }}"
@@ -148,7 +155,7 @@ vms:
     cloud_init:
       host_name: "lb.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ update_guest_agent_script }}"
+      custom_script: "{{ cloud_init_script }}"
 
 affinity_groups:
   - name: masters_ag
