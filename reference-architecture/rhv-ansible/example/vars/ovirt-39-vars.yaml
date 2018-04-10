@@ -26,6 +26,8 @@ template_nics:
 ##########################
 debug_vm_create: true
 wait_for_ip: true
+vm_infra_wait_for_ip_retries: 10
+vm_infra_wait_for_ip_delay: 40
 
 master_vm:
   cluster: "{{ rhv_cluster }}"
@@ -71,12 +73,20 @@ cloud_init_script: |
     - sed -i 's@^# device =.*@device = /dev/virtio-ports/ovirt-guest-agent.0@' /etc/ovirt-guest-agent.conf
     - sed -i 's@com.redhat.rhevm.vdsm@ovirt-guest-agent.0@' /etc/udev/rules.d/55-ovirt-guest-agent.rules
     - 'udevadm trigger --subsystem-match="virtio-ports"'
-    - chmod 777 /dev/virtio-ports/ovirt-guest-agent.0
-    - systemctl restart ovirt-guest-agent
     - mkdir -p '/var/lib/origin/openshift.local.volumes'
     - /usr/sbin/mkfs.xfs -L localvol /dev/vdc
+    - sleep "$(($RANDOM % 60))"
+    - sync
+    - reboot
   mounts:
     - [ '/dev/vdc', '/var/lib/origin/openshift.local.volumes', 'xfs', 'defaults,gquota' ]
+  rh_subscription:
+    username: {{vault_rhsub_user}}
+    password: {{vault_rhsub_password}}
+    add-pool: [{{vault_rhsub_pool}}]
+    server-hostname: {{vault_rhsub_server}}
+    enable-repo: ['rhel-7-server-rpms', 'rhel-7-server-extras-rpms', 'rhel-7-fast-datapath-rpms', 'rhel-7-server-ose-3.9-rpms']
+    disable-repo: []
 
 vms:
   # Master VMs

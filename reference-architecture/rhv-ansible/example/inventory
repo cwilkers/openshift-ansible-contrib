@@ -60,8 +60,9 @@ rhsub_user="{{ vault_rhsub_user }}"
 rhsub_password="{{ vault_rhsub_password }}"
 
 # Load Balancer Config
-openshift_loadbalancer_additional_frontends="[{'name': 'apps-http', 'option': 'tcplog', 'binds': ['*:80'], 'default_backend': 'apps-http' }, {'name': 'apps-https', 'option': 'tcplog', 'binds': ['*:443'], 'default_backend': 'apps-https' }]"
-openshift_loadbalancer_additional_backends="[{'name': 'apps-http', 'balance': 'source', 'servers': [{'name': 'infra0', 'address': \"{{groups['infras'].0}}:80\", 'opts':, 'check'}, {'name': 'infra1', 'address': \"{{groups['infras'].1}}:80\", 'opts': 'check'}, {'name': 'infra2', 'address': \"{{groups['infras'].2}}:80\", 'opts': 'check'}]},{'name': 'apps-https', 'balance': 'source', 'servers': [{'name': 'infra0', 'address': \"{{groups['infras'].0}}:443\", 'opts':, 'check'}, {'name': 'infra1', 'address': \"{{groups['infras'].1}}:443\", 'opts': 'check'}, {'name': 'infra2', 'address': \"{{groups['infras'].2}}:443\", 'opts': 'check'}]}]"
+# Using yaml style syntax here as this looks horrible in embedded json
+openshift_loadbalancer_additional_frontends=[{"name":"apps-http","option":"tcplog","binds":["*:80"],"default_backend":"apps-http"},{"name":"apps-https","option":"tcplog","binds":["*:443"],"default_backend":"apps-http"}]
+openshift_loadbalancer_additional_backends=[{"name":"apps-http","balance":"source","servers":[{"name":"infra0","address":"{{ groups['infras'].0 }}:80","opts":"check"},{"name":"infra1","address":"{{ groups['infras'].1 }}:80","opts":"check"},{"name":"infra2","address":"{{ groups['infras'].2 }}:80","opts":"check"}]},{"name":"apps-https","balance":"source","servers":[{"name":"infra0","address":"{{ groups['infras'].0 }}:443","opts":"check"},{"name":"infra1","address":"{{ groups['infras'].1 }}:443","opts":"check"},{"name":"infra2","address":"{{ groups['infras'].2 }}:443","opts":"check"}]}]
 
 [masters]
 master0.example.com
@@ -73,6 +74,11 @@ master0.example.com
 master1.example.com
 master2.example.com
 
+[infras]
+infra0.example.com
+infra1.example.com
+infra2.example.com
+
 [lb]
 lb.example.com
 
@@ -83,9 +89,9 @@ master2.example.com openshift_node_labels="{'region': 'master'}" openshift_hostn
 infra0.example.com openshift_node_labels="{'region': 'infra'}" openshift_hostname=infra0.example.com
 infra1.example.com openshift_node_labels="{'region': 'infra'}" openshift_hostname=infra1.example.com
 infra2.example.com openshift_node_labels="{'region': 'infra'}" openshift_hostname=infra2.example.com
-node0.example.com openshift_node_labels="{'region': 'primary'}" openshift_hostname=node0.example.com
-node1.example.com openshift_node_labels="{'region': 'primary'}" openshift_hostname=node1.example.com
-node2.example.com openshift_node_labels="{'region': 'primary'}" openshift_hostname=node2.example.com
+app0.example.com openshift_node_labels="{'region': 'primary'}" openshift_hostname=app0.example.com
+app1.example.com openshift_node_labels="{'region': 'primary'}" openshift_hostname=app1.example.com
+app2.example.com openshift_node_labels="{'region': 'primary'}" openshift_hostname=app2.example.com
 lb.example.com
 
 # vim: set syntax=dosini
