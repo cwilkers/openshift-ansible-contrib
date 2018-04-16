@@ -25,7 +25,7 @@ engine_cafile: ../ca.pem
 ## Alternatively, download the above KVM image, and re-host it on a local satellite:
 qcow_url: http://satellite.example.com/pub/rhel-server-7.4.x86_64-kvm.qcow2
 
-template_name: rhel741
+template_name: rhel75
 image_path: "{{ lookup('env', 'HOME') }}/Downloads/{{ template_name }}.qcow2"
 
 

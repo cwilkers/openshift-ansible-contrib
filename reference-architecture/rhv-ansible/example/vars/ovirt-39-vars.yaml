@@ -67,12 +67,12 @@ node_vm:
 # Cloud Init Script
 ##########################
 # Use the following if RHEL 7.4 or below VMs are being created on a RHV 4.2 or above engine
+#    - sed -i 's@^# device =.*@device = /dev/virtio-ports/ovirt-guest-agent.0@' /etc/ovirt-guest-agent.conf
+#    - sed -i 's@com.redhat.rhevm.vdsm@ovirt-guest-agent.0@' /etc/udev/rules.d/55-ovirt-guest-agent.rules
+#    - 'udevadm trigger --subsystem-match="virtio-ports"'
 
 cloud_init_script: |
   runcmd:
-    - sed -i 's@^# device =.*@device = /dev/virtio-ports/ovirt-guest-agent.0@' /etc/ovirt-guest-agent.conf
-    - sed -i 's@com.redhat.rhevm.vdsm@ovirt-guest-agent.0@' /etc/udev/rules.d/55-ovirt-guest-agent.rules
-    - 'udevadm trigger --subsystem-match="virtio-ports"'
     - mkdir -p '/var/lib/origin/openshift.local.volumes'
     - /usr/sbin/mkfs.xfs -L localvol /dev/vdc
     - sleep "$(($RANDOM % 60))"
