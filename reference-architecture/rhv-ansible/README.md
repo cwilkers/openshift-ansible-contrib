@@ -41,7 +41,7 @@ into your system's Ansible role path, typically `/usr/share/ansible/roles`.
 These are required for playbooks to interact with RHV/oVirt to create VMs.
 
 ### Dynamic Inventory
-A copy of `ovirt4.py` from the Ansible project is provided under the inventory directory. This script will, given credentials to a RHV 4 engine, populate the Ansible inventory with facts about all virtual machines in the cluster. In order to use this dynamic inventory, see the `ovirt.ini.example` file, either providing the relevant Python secrets via environment variables, or by copying it to `ovirt.ini` and filling in the values.
+A copy of `ovirt4.py` from the Ansible project is provided under the inventory directory. This script will, given credentials to a RHV 4 engine, populate the Ansible inventory with facts about all virtual machines in the cluster. In order to use this dynamic inventory, see the [`ovirt.ini.example`](inventory/ovirt.ini.example) file, either providing the relevant Python secrets via environment variables, or by copying it to `ovirt.ini` and filling in the values.
 
 This reference architecture uses the dynamic inventory to establish DNS entries in the form of either an /etc/hosts file or nsupdate script for the provisioned virtual machines. All other playbooks are performed using a static inventory. If DNS updates are to be performed manually, the dynamic inventory script may be unnecessary.
 
@@ -79,11 +79,11 @@ For more information, please see the
 
 Four files will need to be copied from examples and edited:
 
-* As mentioned above, protected values should be created in an ansible vault, e.g. `vault.yaml` in the user's home directory. A template is provided in the examples directory. This will hold RHV credentials and, in the case of RHEL hosts, subscription credentials.
+* As mentioned above, protected values should be created in an ansible vault, e.g. [`vault.yaml`](vault.yaml) in the user's home directory. A template is provided in the examples directory. This will hold RHV credentials and, in the case of RHEL hosts, subscription credentials.
 
-* `ocp_vars.yaml` should be checked for blank entries and filled out. Of primary importance are the DNS entries
+* [`ocp_vars.yaml`](ocp_vars.yaml) should be checked for blank entries and filled out. Of primary importance are the DNS entries
 
-* The `ovirt-infra-vars.yaml` file defines the virtual machines created by the `ovirt-vm-infra.yaml` playbook. The host names created here must match those in the static inventory.
+* The [`ovirt-infra-vars.yaml`](ovirt-infra-vars.yaml) file defines the virtual machines created by the `ovirt-vm-infra.yaml` playbook. The host names created here must match those in the static inventory.
 
 * A copy of a static inventory is provided, populated with hosts in the example.com domain along with variables pertaining to the reference architecture. 
 
