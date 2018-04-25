@@ -55,4 +55,3 @@ root_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 public_hosted_zone:
 openshift_master_cluster_public_hostname: openshift.{{ public_hosted_zone }}
 openshift_master_default_subdomain: apps.{{ public_hosted_zone }}
-
