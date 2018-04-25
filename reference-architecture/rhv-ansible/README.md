@@ -81,11 +81,11 @@ Four files will need to be copied from examples and edited:
 
 * As mentioned above, protected values should be created in an ansible vault, e.g. [`vault.yaml`](vault.yaml) in the user's home directory. A template is provided in the examples directory. This will hold RHV credentials and, in the case of RHEL hosts, subscription credentials.
 
-* [`ocp_vars.yaml`](ocp_vars.yaml) should be checked for blank entries and filled out. Of primary importance are the DNS entries
+* [`ocp-vars.yaml`](ocp-vars.yaml) should be checked for blank entries and filled out. Of primary importance are the DNS entries
 
 * The [`ovirt-infra-vars.yaml`](ovirt-infra-vars.yaml) file defines the virtual machines created by the `ovirt-vm-infra.yaml` playbook. The host names created here must match those in the static inventory.
 
-* A copy of a static inventory is provided, populated with hosts in the example.com domain along with variables pertaining to the reference architecture. 
+* A copy of a static inventory is provided as [yaml](example/inventory.yaml) or [ini](example/inventory), populated with hosts in the example.com domain along with variables pertaining to the reference architecture. 
 
 ### Set up virtual machines in RHV
 From the `reference-architecture/rhv-ansible` directory, run
